@@ -10,7 +10,7 @@ const inputElevation = document.querySelector('.form__input--elevation');
 
 class Workout {
     date = new Date();
-    id = (Date.now() + '').slice(-10);
+    id = crypto.randomUUID();
 
     constructor(coords, distance, duration) {
         this.coords = coords; // [lat, lng]
@@ -265,11 +265,29 @@ class App {
 
         if (!data) return;
 
-        this.#workouts = data;
+        data.forEach((workout) => this._restoreObject(workout));
 
         this.#workouts.forEach((work) => {
             this._renderWorkout(work);
         });
+    }
+
+    _restoreObject(workout) {
+        if (workout.type === 'running') {
+            this.#workouts.push(
+                new Running(workout.coords, workout.distance, workout.duration, workout.cadence)
+            );
+        }
+        if (workout.type === 'cycling') {
+            this.#workouts.push(
+                new Cycling(
+                    workout.coords,
+                    workout.distance,
+                    workout.duration,
+                    workout.elevationGain
+                )
+            );
+        }
     }
 
     reset() {
