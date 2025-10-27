@@ -68,12 +68,14 @@ class App {
     #map;
     #mapEvent;
     #workouts = [];
+    #markers = [];
 
     constructor() {
         this._getPosition();
 
         form.addEventListener('submit', this._newWorkout.bind(this));
         inputType.addEventListener('change', this._toggleElevationField);
+        containerWorkouts.addEventListener('click', this._deleteWorkout.bind(this));
         containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
 
         this._getLocalStorage();
@@ -173,7 +175,7 @@ class App {
     }
 
     _renderWorkoutMarker(workout) {
-        L.marker(workout.coords)
+        const marker = L.marker(workout.coords)
             .addTo(this.#map)
             .bindPopup(
                 L.popup({
@@ -186,6 +188,8 @@ class App {
             )
             .setPopupContent(`${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`)
             .openPopup();
+
+        this.#markers.push({ id: workout.id, marker: marker });
     }
 
     _renderWorkout(workout) {
@@ -194,6 +198,7 @@ class App {
                 <h2 class="workout__title">${
                     workout.type[0].toUpperCase() + workout.type.slice(1)
                 } on April 14</h2>
+                <button type="button" class="workout__delete-btn" title="Delete">🗑</button>
                 <div class="workout__details">
                     <span class="workout__icon">${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'}</span>
                     <span class="workout__value">${workout.distance}</span>
@@ -288,6 +293,29 @@ class App {
                 )
             );
         }
+    }
+
+    _deleteWorkout(e) {
+        const target = e.target;
+
+        if (!target.classList.contains('workout__delete-btn')) return;
+
+        e.stopImmediatePropagation();
+
+        // remove element
+        const workoutElem = target.closest('.workout');
+        workoutElem.remove();
+
+        // remove workout from #workouts
+        const workoutId = workoutElem.dataset.id;
+        const workoutPosition = this.#workouts.findIndex((workout) => workout.id === workoutId);
+        this.#workouts.splice(workoutPosition, 1);
+
+        // remove marker from the map
+        this.#map.removeLayer(this.#markers.find((m) => m.id === workoutId)?.marker);
+
+        // update local storage
+        this._setLocalStorage();
     }
 
     reset() {

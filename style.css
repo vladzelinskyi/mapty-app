@@ -84,10 +84,31 @@ a:visited {
     border-left: 5px solid var(--color-brand--1);
 }
 
+.workout:hover .workout__delete-btn {
+    opacity: 1;
+}
+
+.workout__delete-btn {
+    opacity: 0;
+    transition: 0.1s;
+    border: none;
+    width: 30px;
+    margin-left: auto;
+    background-color: var(--color-dark--1);
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.workout__delete-btn:hover {
+    background-color: red;
+}
+
 .workout__title {
     font-size: 1.7rem;
     font-weight: 600;
-    grid-column: 1 / -1;
+    grid-column: 1 / -2;
 }
 
 .workout__details {
